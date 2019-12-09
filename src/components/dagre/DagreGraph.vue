@@ -110,6 +110,8 @@ export default {
           shape = 'ellipse'
         } else if (item.value.operator === 'JoinOperator') {
           shape = 'circle'
+        } else if (item.value.operator === 'test') {
+          shape = 'house'
         }
 
         this.graph.setNode(item.id, {
@@ -120,6 +122,34 @@ export default {
 
         this.nodesMap.set(item['id'], item)
       })
+      this.renderer.shapes().house = function rect (parent, bbox, node) {
+        node.rx = 20
+        node.ry = 20
+        let shapeSvg = parent.insert('rect', ':first-child')
+          .attr('rx', node.rx)
+          .attr('ry', node.ry)
+          .attr('x', -bbox.width / 2)
+          .attr('y', -bbox.height / 2)
+          .attr('width', bbox.width * 1.2)
+          .attr('height', bbox.height * 2.5)
+        const fo = parent.selectAll('foreignObject')
+        let img = './assets/timg.jpg'
+        if (!fo || fo.size() === 0) {
+          parent.insert('foreignObject', 'g').attr('width', '40').attr('height', '40').attr('x', -bbox.width * 0.3)
+            .attr('y', bbox.width * 0.3)
+            .html(` <div class="tip" style="display: inline-block;font-size: 11px;">
+                    <div style="margin-left:8px;margin-top:5px;height: 40px;text-align: center">
+                      <img src=${img} width="32" height="32"/>
+                    </div>
+                    </div>`)
+        }
+        // parent.insert('foreigh')
+        node.intersect = function (point) {
+          return dagreD3.intersect.rect(node, point)
+        }
+
+        return shapeSvg
+      }
       this.renderer(container, this.graph)
     },
     /**
@@ -129,7 +159,6 @@ export default {
       // 一个脚本节点时：不渲染eage
       if (this.nodes.length > 1) {
         this.edges.forEach(item => {
-          console.log(item)
           if (item.label) {
             this.graph.setEdge(item.from, item.to, { label: item.label })
           } else {
@@ -174,25 +203,33 @@ export default {
       .append('div')
       .attr('class', 'tooltip')
       .style('opacity', 0)
-    const nodesMap = this.nodesMap
+    // const nodesMap = this.nodesMap
     d3.selectAll('svg g.node')
       .on('mouseover', id => {
-        console.log(JSON.stringify(nodesMap.get(id)))
-        tooltip
+        const rect = d3.select('svg g.node').select('rect')
+        console.log(rect)
+        d3.select(this.firstElementChild).style('stroke', 'black').style('stroke-width', '2')
+        // console.log(id)
+        /*   console.log(JSON.stringify(nodesMap.get(id))) */
+        /* tooltip
           .transition()
           .duration(200)
-          .style('opacity', 0.9)
+          .style('opacity', 0.9) */
+        console.log(d3.event.pageX, d3.event.pageY)
         tooltip
-          .html(JSON.stringify(nodesMap.get(id)))
+          .html(`<b>作业编号:first</br>
+                 First line</br>
+                 Second line</b>`)
           .style('left', d3.event.pageX + 5 + 'px')
           .style('top', d3.event.pageY - 28 + 'px')
-          .style('background', 'yellow')
+          .style('color', 'black')
+          .style('opacity', 1.0)
       })
       .on('mouseout', () => {
         tooltip
-          .transition()
-          .duration(500)
-          .style('opacity', 0)
+        /* .transition()
+          .duration(500) */
+          .style('opacity', 0.0)
       })
   },
   watch: {
@@ -226,6 +263,18 @@ $queued: #43e3ed;
 $retry: #f8b96c;
 $no-status: #fff;
 $upstream_failed: rgb(163, 108, 108);
+.tooltip{
+  box-shadow: 3px 3px 12px #c0c0c0;
+  background: #ffffcc;
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+  font-family: Arial;
+  font-size: 8pt;
+  position: absolute;
+  cursor: default;
+  padding: 4px;
+}
 /**************** dagre 节点图************************/
 g.node.dagre {
   tspan {
@@ -323,6 +372,12 @@ g.node.dagre {
     rect {
       stroke: #fff;
       fill: $queued;
+    }
+    &:hover{
+      & rect{
+        stroke: black;
+        stroke-width: 2;
+      }
     }
     ellipse {
       stroke: #fff;

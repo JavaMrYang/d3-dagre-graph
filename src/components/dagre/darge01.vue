@@ -21,14 +21,14 @@ export default {
   methods: {
     init () {
       this.nodes = [
-        {
+        /* {
           id: 'e1',
           state: '',
           value: {
             label: '开始',
             operator: 'BashOperator'
           }
-        },
+        }, */
         {
           id: 'e2',
           state: 'success',
@@ -82,7 +82,7 @@ export default {
           state: 'queued',
           value: {
             label: '节点6',
-            operator: 'BashOperator'
+            operator: 'test'
           }
         },
         {
@@ -90,7 +90,7 @@ export default {
           state: 'queued',
           value: {
             label: '节点7',
-            operator: 'BashOperator'
+            operator: 'test'
           }
         },
         {
@@ -125,6 +125,10 @@ export default {
           from: 'e5',
           to: 'e7',
           label: ''
+        },
+        {
+          from: 'e4',
+          to: 'e6'
         },
         {
           from: 'e3',
